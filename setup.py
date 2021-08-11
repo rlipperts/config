@@ -23,11 +23,13 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/rlipperts/python_package_template",
     package_dir={'': 'src'},
-    packages=['package_name'],
-    package_data={'package_name': ['py.typed']},
+    packages=['config'],
+    package_data={'config': ['py.typed']},
     tests_require=test_deps,
     extras_require=extras,
     install_requires=[
+        'template-loader @ git+ssh://git@github.com/rlipperts/template.git@master'
+        '#egg=template-loader-0.0.2',
     ],
     classifiers=[
         "Programming Language :: Python :: 3.9",
