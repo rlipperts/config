@@ -28,8 +28,6 @@ setuptools.setup(
     tests_require=test_deps,
     extras_require=extras,
     install_requires=[
-        'template-loader @ git+ssh://git@github.com/rlipperts/template.git@master'
-        '#egg=template-loader-0.0.2',
     ],
     classifiers=[
         "Programming Language :: Python :: 3.9",

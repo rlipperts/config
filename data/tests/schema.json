@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Test Config",
+  "description": "An example config to test this package",
+  "type": "object",
+
+  "properties": {
+    "key": {
+      "type": "string"
+    },
+    "bool_key": {
+      "type": "boolean"
+    },
+    "int_key": {
+      "type": "integer"
+    },
+    "float_key": {
+      "type": "number"
+    },
+    "list_key": {
+      "type": "array"
+    },
+    "dict_key": {
+      "type": "object"
+    }
+  },
+
+  "additionalProperties": false
+}

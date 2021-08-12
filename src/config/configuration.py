@@ -2,14 +2,13 @@
 Implementation of the configuration housekeeping.
 """
 import logging
+import json
 from pathlib import Path
-from typing import TypedDict, Container, Type
+from typing import Collection, Type
 
-from template_loader import loader
+from jsonschema import validate
 
 LOGGER = logging.Logger(__name__)
-ENVIRONMENT_VAR_NAME = 'ROUTING_CONFIG_LOCATION'
-CONFIG_LOCATION = Path.cwd() / 'data/frontend_dummy/configuration.json'
 
 
 class ConfigurationError(Exception):
@@ -35,24 +34,37 @@ class Config:
     Actual configuration Class.
     """
 
-    __config: TypedDict  # type: ignore # there is no way to specify we want a subclass here, right?
-    __immutable: Container
+    __config: dict
+    __schema: dict
+    __immutable: Collection
 
     @classmethod
-    # see above
-    def setup(cls, config_storage_class: Type[TypedDict], immutable: Container,  # type: ignore
-              config_location: Path):
+    def setup(cls, config_location: Path, validation_schema_location: Path = None,
+              immutable: Collection = None):
         """
         Setup of the configuration, defining type of configuration to store and mutability.
         todo
         """
-        cls.__immutable = immutable
+        # todo: why does this error? im confused!
+        # if cls.__config:
+        #     LOGGER.warning('Config already exists - overwriting old one...')
+        cls.__immutable = immutable or []
         try:
-            # see above
-            cls.__config = config_storage_class(loader.load_dict(config_location))  # type: ignore
-        except (KeyError, loader.BadFormatError) as error:
+            with open(config_location, mode='r') as configuration:
+                configuration_data = json.load(configuration)
+            if validation_schema_location:
+                with open(validation_schema_location, mode='r') as schema:
+                    cls.__schema = json.load(schema)
+                    validate(instance=configuration_data, schema=cls.__schema)
+            cls.__config = configuration_data
+
+        except (KeyError, json.JSONDecodeError) as error:
             LOGGER.error('Could not parse config file \'%s\'')
             LOGGER.error('Check if it is formatted correctly!')
+            raise ConfigurationError from error
+        except OSError as error:
+            LOGGER.error('Could not open schema or configuration.')
+            LOGGER.error('Please ensure they exist and you have the appropriate read rights.')
             raise error
 
     @classmethod
@@ -81,7 +93,9 @@ class Config:
             if name in cls.__immutable:  # type: ignore # https://github.com/python/mypy/issues/7178
                 LOGGER.error('Cannot change value of config variable %s as it is immutable!', name)
                 raise ImmutableError
-            cls.__config[name] = value  # type: ignore # specify subclass?
+            cls.__config[name] = value
+            if cls.__schema:
+                validate(instance=cls.__config, schema=cls.__schema)
         except KeyError as error:
             LOGGER.error('There is no configuration variable with name %s!', name)
             raise error
