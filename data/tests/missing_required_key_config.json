@@ -1,0 +1,9 @@
+{
+  "bool_key": true,
+  "int_key": 1,
+  "float_key": 3.14159,
+  "list_key": ["one", "two", "three"],
+  "dict_key": {
+    "key": "value"
+  }
+}
