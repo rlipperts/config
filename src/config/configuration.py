@@ -1,6 +1,7 @@
 """
 Implementation of the configuration housekeeping.
 """
+import hashlib
 import logging
 import json
 from pathlib import Path
@@ -118,3 +119,21 @@ class Config:
             del cls.__immutable
         except AttributeError:
             LOGGER.warning('Unnecessary reset call - nothing to reset here.')
+
+    @classmethod
+    def write(cls, path: Path):
+        """
+        Persists the current configuration in a JSON file.
+        :param path: Path to write the configuration to
+        """
+        with open(path, mode='w') as file:
+            json.dump(cls.__config, file)
+
+    @classmethod
+    def identifier(cls) -> str:
+        """
+        Computes and returns a hash of the current configuration. The hash only depends on the
+        configuration keys and values, not on a schema or immutability settings.
+        :return: Hexadecimal md5 hash of the config
+        """
+        return hashlib.md5((json.dumps(cls.__config, sort_keys=True)).encode('utf-8')).hexdigest()

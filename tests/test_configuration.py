@@ -100,3 +100,53 @@ def test_set_errors_if_not_setup():
     Config.reset()
     with pytest.raises(SetupFirstError):
         Config.set('key', 'new_value')
+
+
+def test_config_write():
+    Config.reset()
+    Config.setup(config_path)
+    write_path = Path('/tmp/config.json')
+    Config.write(write_path)
+    with open(write_path, mode='r') as file:
+        written_config = json.load(file)
+    assert Config._Config__config == written_config
+
+
+def test_id_is_repeatable():
+    Config.reset()
+    Config.setup(config_path)
+    first_id = Config.identifier()
+
+    Config.reset()
+    Config.setup(config_path)
+    second_id = Config.identifier()
+
+    assert first_id == second_id
+
+
+def test_id_of_different_configs_is_different():
+    Config.reset()
+    Config.setup(config_path)
+    first_id = Config.identifier()
+
+    Config.reset()
+    Config.setup(minimal_config_path)
+    second_id = Config.identifier()
+
+    assert first_id != second_id
+
+
+def test_id_depends_only_on_config():
+    Config.reset()
+    Config.setup(config_path)
+    first_id = Config.identifier()
+
+    Config.reset()
+    Config.setup(config_path, validation_schema_location=schema_path)
+    second_id = Config.identifier()
+
+    Config.reset()
+    Config.setup(config_path, immutable=['key'])
+    third_id = Config.identifier()
+
+    assert first_id == second_id == third_id

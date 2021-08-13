@@ -129,3 +129,14 @@ config_json = Path.cwd() / 'data/tests/config.json'
 Config.setup(config_json, immutable=['key', 'bool_key'])
 ```
 If the `Config.set()` method is used to update these, an `ImmutableError` is raised.
+
+### persisting the configuration
+If you changed your configuration during runtime and want to persist it as json file you can use 
+the `Config.write()` function. 
+```python
+Config.write('out/updated_configuration.json')
+```
+
+### identifying the configuration
+If you need to have a short reference of the current configuration state, you can calculate the 
+configurations MD5-hash with the `Config.identifier()` function.
