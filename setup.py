@@ -14,7 +14,7 @@ extras = {
 }
 
 setuptools.setup(
-    name="python-package-template",
+    name="config",
     version="0.0.0",
     author="Ruben Lipperts",
     author_email="",

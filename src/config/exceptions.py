@@ -17,7 +17,7 @@ class ImmutableError(ConfigError, NameError):
     """
 
 
-class SetupFirstError(ConfigError, ValueError):
+class SetupFirstError(ConfigError, AttributeError):
     """
     Error if trying to access data before setup has been called.
     """
