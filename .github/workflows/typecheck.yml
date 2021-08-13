@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/**'
+      - 'tests/**'
   workflow_dispatch:
 jobs:
   build:
@@ -25,4 +26,5 @@ jobs:
         pip install .[test]
     - name: Typecheck with mypy
       run: |
-        mypy src/
+        mypy src
+        mypy tests

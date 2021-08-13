@@ -11,6 +11,7 @@ from config import Config, SetupFirstError, ImmutableError, ConfigValidationErro
 
 schema_path = Path.cwd() / 'data/tests/schema.json'
 config_path = Path.cwd() / 'data/tests/config.json'
+minimal_config_path = Path.cwd() / 'data/tests/minimal_config.json'
 invalid_config_path = Path.cwd() / 'data/tests/invalid_config.json'
 missing_key_path = Path.cwd() / 'data/tests/missing_required_key_config.json'
 
@@ -45,6 +46,11 @@ def test_setup_errors_on_missing_required_keys():
     Config.reset()
     with pytest.raises(ConfigValidationError):
         Config.setup(missing_key_path, schema_path)
+
+
+def test_setup_missing_non_required_keys():
+    Config.reset()
+    Config.setup(minimal_config_path)
 
 
 def test_setup_errors_if_already_setup():
