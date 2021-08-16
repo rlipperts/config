@@ -28,6 +28,7 @@ setuptools.setup(
     tests_require=test_deps,
     extras_require=extras,
     install_requires=[
+        'jsonschema'
     ],
     classifiers=[
         "Programming Language :: Python :: 3.9",
