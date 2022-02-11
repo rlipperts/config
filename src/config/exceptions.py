@@ -2,7 +2,7 @@
 Different custom errors for various cases. They mostly inherit the errors that are thrown
 """
 import json
-import jsonschema  # type: ignore
+import jsonschema
 
 
 class ConfigError(Exception):
@@ -35,7 +35,7 @@ class ConfigValidationError(ConfigError, jsonschema.exceptions.ValidationError):
     Error if configuration validation failed.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         jsonschema.exceptions.ValidationError.__init__(self, message='')
         ConfigError.__init__(self)
 
@@ -45,6 +45,6 @@ class ConfigDecodeError(ConfigError, json.JSONDecodeError):
     Error if configuration file has invalid format.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         json.JSONDecodeError.__init__(self, '', '', 0)
         ConfigError.__init__(self)

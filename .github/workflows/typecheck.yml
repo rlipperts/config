@@ -27,4 +27,3 @@ jobs:
     - name: Typecheck with mypy
       run: |
         mypy src
-        mypy tests

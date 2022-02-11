@@ -7,16 +7,19 @@ import hashlib
 import logging
 import json
 import sys
+import typing
 from pathlib import Path
 from typing import Collection, Optional
 
-import jsonschema.exceptions  # type: ignore
-from jsonschema import validate  # type: ignore
+import jsonschema.exceptions
+from jsonschema import validate
 
 from config.exceptions import ImmutableError, SetupFirstError, ConfigExistsError, \
     ConfigDecodeError, ConfigValidationError
 
 LOGGER = logging.Logger(__name__)
+PrimitiveTypes = typing.Union[str, bool, int, float]
+SupportedTypes = typing.Union[PrimitiveTypes, list[PrimitiveTypes], dict[str, PrimitiveTypes]]
 
 
 class Config:
@@ -24,14 +27,14 @@ class Config:
     Actual configuration Class.
     """
 
-    __config: dict
-    __schema: dict
-    __immutable: Collection
+    __config: dict[str, SupportedTypes]
+    __schema: dict  # type: ignore
+    __immutable: Collection[str]
 
     @classmethod
     # see https://github.com/PyCQA/pylint/issues/4644
     # pylint: disable=unused-private-member
-    def __validate(cls):
+    def __validate(cls) -> None:
         if cls.__schema:
             try:
                 validate(instance=cls.__config, schema=cls.__schema)
@@ -41,7 +44,8 @@ class Config:
 
     @classmethod
     def setup(cls, config_location: Path, validation_schema_location: Optional[Path] = None,
-              immutable: Optional[Collection] = None, allow_cmdline_override: bool = True):
+              immutable: Optional[Collection[str]] = None, allow_cmdline_override: bool = True) \
+            -> None:
         """
         Setup of the configuration, defining type of configuration to store and mutability.
         :param config_location: Path to the configuration JSON file
@@ -79,7 +83,7 @@ class Config:
             raise error
 
     @classmethod
-    def __apply_cmdline_overrides(cls, argv: list):
+    def __apply_cmdline_overrides(cls, argv: list[str]) -> None:
         """
         Look for commandline arguments with similar names as loaded config options. Returns all
         found arguments which can be used to temporarily override information loaded from the
@@ -118,14 +122,14 @@ class Config:
         cls.__config.update(vars(parser.parse_args(argv)))
 
     @classmethod
-    def get(cls, name: str):
+    def get(cls, name: str) -> SupportedTypes:
         """
         Access to the configuration.
         :param name: Name of the configuration variable to read
         :return: Value of the requested configuration variable
         """
         try:
-            return cls.__config[name]  # type: ignore # https://github.com/python/mypy/issues/7178
+            return cls.__config[name]
         except KeyError as error:
             LOGGER.error('There is no configuration variable with name %s!', name)
             raise error
@@ -134,7 +138,7 @@ class Config:
             raise SetupFirstError from error
 
     @classmethod
-    def set(cls, name: str, value):
+    def set(cls, name: str, value: SupportedTypes) -> None:
         """
         Change the configuration for mutable values.
         Raises ImmutableError if value is immutable.
@@ -142,7 +146,7 @@ class Config:
         :param value: New value for the configuration variable
         """
         try:
-            if name in cls.__immutable:  # type: ignore # https://github.com/python/mypy/issues/7178
+            if name in cls.__immutable:
                 LOGGER.error('Cannot change value of config variable %s as it is immutable!', name)
                 raise ImmutableError
             cls.__config[name] = value
@@ -155,7 +159,7 @@ class Config:
             raise SetupFirstError from error
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
         """
         Resets the class so it can be setup again.
         """
@@ -167,7 +171,7 @@ class Config:
             LOGGER.warning('Unnecessary reset call - nothing to reset here.')
 
     @classmethod
-    def string_representation(cls):
+    def string_representation(cls) -> str:
         """
         Returns a human-readable representation of current configuration.
         :return: String representation
@@ -175,7 +179,7 @@ class Config:
         return json.dumps(cls.__config, sort_keys=True, indent=4)
 
     @classmethod
-    def write(cls, path: Path):
+    def write(cls, path: Path) -> None:
         """
         Persists the current configuration in a JSON file.
         :param path: Path to write the configuration to
