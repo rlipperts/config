@@ -30,7 +30,7 @@ def test_setup_from_file():
     # check that it does not raise an error when creating correct config
     Config.reset()
     Config.setup(config_path, schema_path)
-    with open(config_path) as file:
+    with open(config_path, encoding='utf8') as file:
         data = json.load(file)
     for key in data.keys():
         assert Config._Config__config[key] == data[key]
@@ -60,10 +60,27 @@ def test_setup_errors_if_already_setup():
         Config.setup(config_path, schema_path)
 
 
+@pytest.mark.parametrize('argv, key, expected_value', [
+    (['--key', 'new_value'], 'key', 'new_value'),
+    (['--bool-key', 'false'], 'bool_key', False),
+    (['--int-key', '0'], 'int_key', 0),
+    (['--float-key', '0.5'], 'float_key', 0.5),
+    (['--list-key', 'test', 'test_a', 'test_2'], 'list_key', ['test', 'test_a', 'test_2']),
+    (['--bool-list-key', 'true', '1', 'FALSE'], 'bool_list_key', [True, True, False]),
+    (['--int-list-key', '1', '7', '3'], 'int_list_key', [1, 7, 3]),
+    (['--float-list-key', '0.5', '6.9', '2.4', '3.3'], 'float_list_key', [0.5, 6.9, 2.4, 3.3]),
+])
+def test_cmdline_overrides(argv: list[str], key, expected_value):
+    Config.reset()
+    Config.setup(config_path, schema_path, allow_cmdline_override=False)
+    Config._Config__apply_cmdline_overrides(argv)  # type: ignore
+    assert Config.get(key) == expected_value
+
+
 def test_get_returns_correct_data():
     Config.reset()
     Config.setup(config_path, schema_path)
-    with open(config_path) as file:
+    with open(config_path, encoding='utf8') as file:
         data = json.load(file)
     for key in data.keys():
         assert Config.get(key) == data[key]
@@ -107,7 +124,7 @@ def test_config_write():
     Config.setup(config_path)
     write_path = Path('/tmp/config.json')
     Config.write(write_path)
-    with open(write_path, mode='r') as file:
+    with open(write_path, mode='r', encoding='utf8') as file:
         written_config = json.load(file)
     assert Config._Config__config == written_config
 

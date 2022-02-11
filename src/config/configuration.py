@@ -1,9 +1,12 @@
 """
 Implementation of the configuration housekeeping.
 """
+import argparse
+import distutils.util
 import hashlib
 import logging
 import json
+import sys
 from pathlib import Path
 from typing import Collection, Optional
 
@@ -38,12 +41,14 @@ class Config:
 
     @classmethod
     def setup(cls, config_location: Path, validation_schema_location: Optional[Path] = None,
-              immutable: Optional[Collection] = None):
+              immutable: Optional[Collection] = None, allow_cmdline_override: bool = True):
         """
         Setup of the configuration, defining type of configuration to store and mutability.
         :param config_location: Path to the configuration JSON file
         :param validation_schema_location: Path to the JSON schema to validate the file with
         :param immutable: Configuration keys whose values are immutable
+        :param allow_cmdline_override: Allows overriding config file options with commandline
+        arguments of same name
         """
         if hasattr(cls, '_Config__config'):
             LOGGER.error('Config already exists!')
@@ -52,14 +57,16 @@ class Config:
             raise ConfigExistsError
         cls.__immutable = immutable or []
         try:
-            with open(config_location, mode='r') as configuration:
+            with open(config_location, mode='r', encoding='utf8') as configuration:
                 configuration_data = json.load(configuration)
             if validation_schema_location:
-                with open(validation_schema_location, mode='r') as schema:
+                with open(validation_schema_location, mode='r', encoding='utf8') as schema:
                     cls.__schema = json.load(schema)
             else:
                 cls.__schema = {}
             cls.__config = configuration_data
+            if allow_cmdline_override:
+                cls.__apply_cmdline_overrides(sys.argv[1:])
             cls.__validate()
 
         except (KeyError, json.JSONDecodeError) as error:
@@ -70,6 +77,45 @@ class Config:
             LOGGER.error('Could not open schema or configuration.')
             LOGGER.error('Please ensure they exist and you have the appropriate read rights.')
             raise error
+
+    @classmethod
+    def __apply_cmdline_overrides(cls, argv: list):
+        """
+        Look for commandline arguments with similar names as loaded config options. Returns all
+        found arguments which can be used to temporarily override information loaded from the
+        config file.
+        Careful!! This does not work with multi layer data structures. Only with primitive types
+        and lists containing primitive types!
+        :return: Dict containing key, value pairs of overrides to apply
+        """
+
+        def bool_parse(string: str) -> bool:
+            return bool(distutils.util.strtobool(string))
+
+        unsupported_type_message = 'Excluding configuration option %s from command-line overrides '\
+                                   'because its type %s is not supported. Command-line overriding' \
+                                   ' is supported for primitive types and lists thereof.'
+
+        parser = argparse.ArgumentParser()
+        config_option: str
+        for config_option, value in cls.__config.items():
+            arg_name = '--' + config_option.replace('_', '-')
+            if isinstance(value, bool):
+                parser.add_argument(arg_name, type=bool_parse, default=value)
+            elif isinstance(value, list):
+                if len(value) == 0:
+                    parser.add_argument(arg_name, nargs='+', type=str, default=value)
+                elif isinstance(value[0], bool):
+                    parser.add_argument(arg_name, nargs='+', type=bool_parse, default=value)
+                elif type(value[0]) in (int, float, str):
+                    parser.add_argument(arg_name, nargs='+', type=type(value[0]), default=value)
+                else:
+                    LOGGER.info(unsupported_type_message, config_option, type(value))
+            elif type(value) in (int, float, str):
+                parser.add_argument(arg_name, type=type(value), default=value)
+            else:
+                LOGGER.info(unsupported_type_message, config_option, type(value))
+        cls.__config.update(vars(parser.parse_args(argv)))
 
     @classmethod
     def get(cls, name: str):
@@ -134,7 +180,7 @@ class Config:
         Persists the current configuration in a JSON file.
         :param path: Path to write the configuration to
         """
-        with open(path, mode='w') as file:
+        with open(path, mode='w', encoding='utf8') as file:
             json.dump(cls.__config, file, sort_keys=True, indent=4)
 
     @classmethod

@@ -20,6 +20,15 @@
     "list_key": {
       "type": "array"
     },
+    "bool_list_key": {
+      "type": "array"
+    },
+    "int_list_key": {
+      "type": "array"
+    },
+    "float_list_key": {
+      "type": "array"
+    },
     "dict_key": {
       "type": "object"
     }

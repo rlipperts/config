@@ -4,6 +4,9 @@
   "int_key": 1,
   "float_key": 3.14159,
   "list_key": ["one", "two", "three"],
+  "bool_list_key": [true, false, true, true],
+  "int_list_key": [1, 2, 4],
+  "float_list_key": [0.123, 3.14159],
   "dict_key": {
     "key": "value"
   }

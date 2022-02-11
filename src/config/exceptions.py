@@ -42,5 +42,9 @@ class ConfigValidationError(ConfigError, jsonschema.exceptions.ValidationError):
 
 class ConfigDecodeError(ConfigError, json.JSONDecodeError):
     """
-    Error if configuration file is malformatted.
+    Error if configuration file has invalid format.
     """
+
+    def __init__(self):
+        json.JSONDecodeError.__init__(self, '', '', 0)
+        ConfigError.__init__(self)
