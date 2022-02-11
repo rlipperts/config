@@ -121,13 +121,21 @@ class Config:
             LOGGER.warning('Unnecessary reset call - nothing to reset here.')
 
     @classmethod
+    def string_representation(cls):
+        """
+        Returns a human-readable representation of current configuration.
+        :return: String representation
+        """
+        return json.dumps(cls.__config, sort_keys=True, indent=4)
+
+    @classmethod
     def write(cls, path: Path):
         """
         Persists the current configuration in a JSON file.
         :param path: Path to write the configuration to
         """
         with open(path, mode='w') as file:
-            json.dump(cls.__config, file)
+            json.dump(cls.__config, file, sort_keys=True, indent=4)
 
     @classmethod
     def identifier(cls) -> str:
