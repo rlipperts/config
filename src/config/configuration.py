@@ -27,7 +27,7 @@ class Config:
     Actual configuration Class.
     """
 
-    __config: dict[str, SupportedTypes]
+    __config: dict  # type: ignore
     __schema: dict  # type: ignore
     __immutable: Collection[str]
 
@@ -122,7 +122,7 @@ class Config:
         cls.__config.update(vars(parser.parse_args(argv)))
 
     @classmethod
-    def get(cls, name: str) -> SupportedTypes:
+    def get(cls, name: str):  # type: ignore
         """
         Access to the configuration.
         :param name: Name of the configuration variable to read
