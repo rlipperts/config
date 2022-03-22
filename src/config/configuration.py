@@ -188,10 +188,16 @@ class Config:
             json.dump(cls.__config, file, sort_keys=True, indent=4)
 
     @classmethod
-    def identifier(cls) -> str:
+    def identifier(cls, keys: list[str] = None) -> str:
         """
         Computes and returns a hash of the current configuration. The hash only depends on the
         configuration keys and values, not on a schema or immutability settings.
+
+        :param keys: Keys to use for the hashing, if None all keys will be used.
         :return: Hexadecimal md5 hash of the config
         """
-        return hashlib.md5((json.dumps(cls.__config, sort_keys=True)).encode('utf-8')).hexdigest()
+        if keys:
+            config = {key: cls.__config[key] for key in keys}
+        else:
+            config = cls.__config
+        return hashlib.md5((json.dumps(config, sort_keys=True)).encode('utf-8')).hexdigest()
