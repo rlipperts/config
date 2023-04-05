@@ -15,7 +15,7 @@ extras = {
 
 setuptools.setup(
     name="static_config_class",
-    version="0.0.2",
+    version="0.0.3",
     author="Ruben Lipperts",
     author_email="",
     description="Configuration manager for medium-sized projects (created for personal use)",

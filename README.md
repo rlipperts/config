@@ -34,7 +34,7 @@ The setup function then is called like this
 from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/static_config_class.json'
+config_json = Path.cwd() / 'data/tests/config.json'
 Config.setup(config_json)
 ```
 If configuration access is attempted before setup, a `SetupFirstError` is raised.
@@ -60,7 +60,7 @@ The schema is provided as path to a JSON schema
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Test Config",
-  "description": "An example static_config_class to test this package",
+  "description": "An example config to test this package",
   "type": "object",
 
   "properties": {
@@ -99,7 +99,7 @@ config is not conforming to the schema.
 from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/static_config_class.json'
+config_json = Path.cwd() / 'data/tests/config.json'
 schema_json = Path.cwd() / 'data/tests/schema.json'
 Config.setup(config_json)
 ```
@@ -115,7 +115,7 @@ allowed to be changed.
 from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/static_config_class.json'
+config_json = Path.cwd() / 'data/tests/config.json'
 Config.setup(config_json, immutable=['key', 'bool_key'])
 ```
 If the `Config.set()` method is used to update these, an `ImmutableError` is raised.
