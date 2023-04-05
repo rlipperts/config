@@ -14,17 +14,17 @@ extras = {
 }
 
 setuptools.setup(
-    name="config",
-    version="0.0.0",
+    name="static_config_class",
+    version="0.0.2",
     author="Ruben Lipperts",
     author_email="",
-    description="Write a short description of the package",
+    description="Configuration manager for medium-sized projects (created for personal use)",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rlipperts/python_package_template",
+    url="https://github.com/rlipperts/config",
     package_dir={'': 'src'},
-    packages=['config'],
-    package_data={'config': ['py.typed']},
+    packages=['static_config_class'],
+    package_data={'static_config_class': ['py.typed']},
     tests_require=test_deps,
     extras_require=extras,
     install_requires=[
@@ -34,7 +34,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Topic :: https://pypi.org/classifiers/",
+        "Topic :: System :: Installation/Setup",
     ],
     python_requires='~=3.9',
 )

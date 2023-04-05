@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from config import Config, SetupFirstError, ImmutableError, ConfigValidationError, ConfigExistsError
+from static_config_class import Config, SetupFirstError, ImmutableError, ConfigValidationError, ConfigExistsError
 
 schema_path = Path.cwd() / 'data/tests/schema.json'
-config_path = Path.cwd() / 'data/tests/config.json'
+config_path = Path.cwd() / 'data/tests/static_config_class.json'
 minimal_config_path = Path.cwd() / 'data/tests/minimal_config.json'
 invalid_config_path = Path.cwd() / 'data/tests/invalid_config.json'
 missing_key_path = Path.cwd() / 'data/tests/missing_required_key_config.json'
@@ -27,7 +27,7 @@ def test_reset_resets():
 
 
 def test_setup_from_file():
-    # check that it does not raise an error when creating correct config
+    # check that it does not raise an error when creating correct static_config_class
     Config.reset()
     Config.setup(config_path, schema_path)
     with open(config_path, encoding='utf8') as file:
@@ -122,7 +122,7 @@ def test_set_errors_if_not_setup():
 def test_config_write():
     Config.reset()
     Config.setup(config_path)
-    write_path = Path('/tmp/config.json')
+    write_path = Path('/tmp/static_config_class.json')
     Config.write(write_path)
     with open(write_path, mode='r', encoding='utf8') as file:
         written_config = json.load(file)

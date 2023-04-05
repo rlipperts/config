@@ -1,26 +1,13 @@
-# Configuration Manager
-_Configuration manager for medium-sized projects (created for personal use)_
+# Static Config Class
+_Configuration manager for medium-sized projects. Maintains a configuration inside a static class. 
+Intended for personal use so breaking changes might be introduced at any point._
 
 ## installation
-There are no PyPI releases. Neither are they planned.
 
-### manual
-For installation with pip directly from this GitHub repository simply open a terminal and type
+The package can simply be installed with pip
 ```
-pip install git+ssh://git@github.com/rlipperts/config.git
+pip install static-config
 ```
-
-### setup.py
-To automatically install the configuration manager with your python package include these lines in 
-your setup.py
-```python
-install_requires = [
-    'config @ git+ssh://git@github.com/rlipperts/formatter.git@master#egg=config-0.0.0',
-],
-```
-Make sure you update the version in the `egg=config-...` portion to the correct 
-version specified in the logging-configurators setup.py. This might not work if you plan on 
-publishing your package on PyPI.
 
 ## usage
 
@@ -42,11 +29,12 @@ Your configuration has to be provided via a path to a JSON file
 _data/tests/config.json_
 
 The setup function then is called like this
+
 ```python
-from config import Config
+from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/config.json'
+config_json = Path.cwd() / 'data/tests/static_config_class.json'
 Config.setup(config_json)
 ```
 If configuration access is attempted before setup, a `SetupFirstError` is raised.
@@ -59,7 +47,7 @@ on the configuration.
 # read the value of configuration key 'key'
 some_config_data = Config.get('key')
 
-# write 'value' to configuration key 'value'
+# write 'value' to configuration key 'key'
 Config.set('key', 'value')
 ```
 
@@ -72,7 +60,7 @@ The schema is provided as path to a JSON schema
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Test Config",
-  "description": "An example config to test this package",
+  "description": "An example static_config_class to test this package",
   "type": "object",
 
   "properties": {
@@ -106,11 +94,12 @@ _data/tests/schema.json_
 Setup with schema is straight forward. The schema is used to initially validate the config during 
 setup and consecutively each time the config is changed. Raises a `ConfigValidationError` if the 
 config is not conforming to the schema.
+
 ```python
-from config import Config
+from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/config.json'
+config_json = Path.cwd() / 'data/tests/static_config_class.json'
 schema_json = Path.cwd() / 'data/tests/schema.json'
 Config.setup(config_json)
 ```
@@ -121,11 +110,12 @@ used to enforce runtime typechecking.
 ### immutable values
 During setup, you can pass a Collection containing all the configuration keys whose values are not 
 allowed to be changed.
+
 ```python
-from config import Config
+from static_config_class import Config
 from pathlib import Path
 
-config_json = Path.cwd() / 'data/tests/config.json'
+config_json = Path.cwd() / 'data/tests/static_config_class.json'
 Config.setup(config_json, immutable=['key', 'bool_key'])
 ```
 If the `Config.set()` method is used to update these, an `ImmutableError` is raised.

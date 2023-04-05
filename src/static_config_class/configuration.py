@@ -14,7 +14,7 @@ from typing import Collection, Optional
 import jsonschema.exceptions
 from jsonschema import validate
 
-from config.exceptions import ImmutableError, SetupFirstError, ConfigExistsError, \
+from static_config_class.exceptions import ImmutableError, SetupFirstError, ConfigExistsError, \
     ConfigDecodeError, ConfigValidationError
 
 LOGGER = logging.Logger(__name__)
@@ -51,13 +51,13 @@ class Config:
         :param config_location: Path to the configuration JSON file
         :param validation_schema_location: Path to the JSON schema to validate the file with
         :param immutable: Configuration keys whose values are immutable
-        :param allow_cmdline_override: Allows overriding config file options with commandline
+        :param allow_cmdline_override: Allows overriding static_config_class file options with commandline
         arguments of same name
         """
         if hasattr(cls, '_Config__config'):
             LOGGER.error('Config already exists!')
             LOGGER.error(
-                'If you really want to setup a different config, call Config.reset() first!')
+                'If you really want to setup a different static_config_class, call Config.reset() first!')
             raise ConfigExistsError
         cls.__immutable = immutable or []
         try:
@@ -74,7 +74,7 @@ class Config:
             cls.__validate()
 
         except (KeyError, json.JSONDecodeError) as error:
-            LOGGER.error('Could not parse config file \'%s\'')
+            LOGGER.error('Could not parse static_config_class file \'%s\'')
             LOGGER.error('Check if it is formatted correctly!')
             raise ConfigDecodeError from error
         except OSError as error:
@@ -85,9 +85,9 @@ class Config:
     @classmethod
     def __apply_cmdline_overrides(cls, argv: list[str]) -> None:
         """
-        Look for commandline arguments with similar names as loaded config options. Returns all
+        Look for commandline arguments with similar names as loaded static_config_class options. Returns all
         found arguments which can be used to temporarily override information loaded from the
-        config file.
+        static_config_class file.
         Careful!! This does not work with multi layer data structures. Only with primitive types
         and lists containing primitive types!
         :return: Dict containing key, value pairs of overrides to apply
@@ -147,7 +147,7 @@ class Config:
         """
         try:
             if name in cls.__immutable:
-                LOGGER.error('Cannot change value of config variable %s as it is immutable!', name)
+                LOGGER.error('Cannot change value of static_config_class variable %s as it is immutable!', name)
                 raise ImmutableError
             cls.__config[name] = value
             cls.__validate()
@@ -194,7 +194,7 @@ class Config:
         configuration keys and values, not on a schema or immutability settings.
 
         :param keys: Keys to use for the hashing, if None all keys will be used.
-        :return: Hexadecimal md5 hash of the config
+        :return: Hexadecimal md5 hash of the static_config_class
         """
         if keys:
             config = {key: cls.__config[key] for key in keys}

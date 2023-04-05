@@ -25,7 +25,7 @@ class SetupFirstError(ConfigError, AttributeError):
 
 class ConfigExistsError(ConfigError):
     """
-    Error if trying to setup a config that already exists.
+    Error if trying to setup a static_config_class that already exists.
     If new setup is desired use the reset function first.
     """
 
